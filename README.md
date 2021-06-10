@@ -6,7 +6,7 @@ Some technologies used:
 
 - TypeScript
 - Koa
-- aws-sdk (DynamoDB, S3, SES)
+- aws-sdk v2 and v3 (DynamoDB, S3, SES)
 
 ## Vulnerabilities
 
