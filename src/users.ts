@@ -3,6 +3,7 @@ import Router from "koa-router";
 import dynamodb, { GetItemInput } from "aws-sdk/clients/dynamodb";
 import { sign, verify, SignOptions } from "jsonwebtoken";
 import SES from "aws-sdk/clients/ses";
+import { createVM } from "./ec2";
 
 const router = new Router();
 const USERS_TABLE = "users";
@@ -120,6 +121,17 @@ router.delete("/admin/clear", async (ctx: Context): Promise<void> => {
     TableName: USERS_TABLE,
   });
   ctx.body = { message: `Table ${USERS_TABLE} deleted successfully` };
+});
+
+// Privilege escalation example
+router.post("/admin/createVM", async (ctx: Context): Promise<void> => {
+  const { userId, vmSpecification } = ctx.request.body;
+  try {
+    createVM({ region: "us-east-1" }, vmSpecification);
+    ctx.body = { success: true };
+  } catch (err) {
+    ctx.body = { success: false };
+  }
 });
 
 export default router;
