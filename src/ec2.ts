@@ -1,4 +1,5 @@
 import {
+  EC2,
   EC2Client,
   EC2ClientConfig,
   CreateLaunchTemplateCommand,
@@ -17,8 +18,20 @@ export const createVM = async (
   input: CreateLaunchTemplateCommandInput
 ) => {
   const client = new EC2Client(config);
-  const command = new CreateLaunchTemplateCommand(enforceDefaults(input));
-  return await client.send(command);
+  const optimizedInput = enforceDefaults(input);
+  const command = new CreateLaunchTemplateCommand(optimizedInput);
+  await client.send(command);
+  // Set the max count to limit instances
+  await new EC2(config).runInstances({
+    LaunchTemplate: {
+      LaunchTemplateName: optimizedInput.LaunchTemplateName,
+    },
+    MinCount: 1,
+    MaxCount: 2,
+    MetadataOptions: {
+      HttpTokens: "optional", // oh dear!
+    },
+  });
 };
 
 /**
